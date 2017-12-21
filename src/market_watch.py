@@ -7,6 +7,8 @@ from multiprocessing import Process
 
 
 class CryptoLambda(object):
+    # secret: <your secret here>
+    # key: <your key here>
     f = open("../.authentication", "r")
     raw_file_data = f.readlines()
     file_info = {}
