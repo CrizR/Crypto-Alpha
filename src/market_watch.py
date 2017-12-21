@@ -7,8 +7,15 @@ from multiprocessing import Process
 
 
 class CryptoLambda(object):
-    key = "SdAlaaAOVAwlZM3po7txuWH15BE1hWHj1obQWVumK3bijpERellqiEYuRjLqSJm3"
-    secret = "cuf8VV1nwjKCcz2v6nfQIz2d7jLrdyJ7XGMwoXljRrwL6nL1HLKlP6KhiD6xJRIg"
+    f = open("../.authentication", "r")
+    raw_file_data = f.readlines()
+    file_info = {}
+    for row in file_data:
+        split = row.split(":")
+        file_in[split[0]] = split[1]
+
+    key = file_info['key']
+    secret = file_info['secret']
 
     def __init__(self):
         self.client = Client(self.key, self.secret)
