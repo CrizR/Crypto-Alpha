@@ -1,0 +1,7 @@
+1. Filter Cryptocurrencies by volume and market cap
+2. Make sure the parallelism is functional
+3. Fix mongodb implementation, not working correctly
+4. Create our own wrapper to the Binance wrapper to pull data from
+as the Binance wrapper we are currently using only has about 40% coverage.
+4. Host API on AWS
+5. Use OAuth to pass in key and secret to API instead of by URL (lol)
