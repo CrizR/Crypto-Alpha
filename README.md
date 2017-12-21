@@ -1,7 +1,6 @@
 ================================
 Welcome to Crypto Alpha v1
 ================================
-
 .. image:: https://img.shields.io/pypi/v/python-binance.svg
     :target: https://pypi.python.org/pypi/python-binance
 
@@ -19,6 +18,7 @@ Welcome to Crypto Alpha v1
 
 .. image:: https://img.shields.io/pypi/pyversions/python-binance.svg
     :target: https://pypi.python.org/pypi/python-binance
+
 Identifies high potential cryptocurrency investments
 
 Dependencies:
