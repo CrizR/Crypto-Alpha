@@ -1,4 +1,4 @@
-Welcome to Crypto Alpha v1
+Crypto Alpha v1
 ================================
 Identifies high potential cryptocurrency investments
 
