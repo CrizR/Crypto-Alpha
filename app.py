@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, abort, make_response,request
-from src.market_watch import CryptoLambda
+from src.market_watch import MarketWatch
 app = Flask(__name__)
 
 
@@ -17,16 +17,12 @@ def welcome():
     return make_response(jsonify(welcome_msg), 200)
 
 
-@app.route('/', methods=['POST', 'GET'])
-def run_market_watch():
-    """
-    With no path specified, returns the following welcome message.
-    :return: a JSON Welcome
-    """
+@app.route('/<string:period>', methods=['POST', 'GET'])
+def run_market_watch(period):
     msg = {
         "message": "Running",
     }
-    CryptoLambda().run()
+    MarketWatch().run(period)
     return make_response(jsonify(msg), 200)
 
 

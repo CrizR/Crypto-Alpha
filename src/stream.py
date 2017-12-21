@@ -11,7 +11,7 @@ class BinanceStream(object):
         Initialize our mongo db with our crypto assets
         :return: Nothing
         """
-        for ticker in self.client.get_all_tickers():
+        for ticker in self.client.get_all_tickers():  # WE SHOULD ONLY STORE LAST 7 days of data
             if db.find({'symbol': ticker['symbol']}) is None:
                 data = {
                     "symbol": ticker["symbol"],
