@@ -5,7 +5,7 @@ Identifies high potential cryptocurrency investments
 Dependencies:
 -------------
 
-Python-Binance:  
+Python-Binance:
 https://github.com/sammchardy/python-binance
 
 Python Flask:
