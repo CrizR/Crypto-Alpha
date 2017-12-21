@@ -1,8 +1,8 @@
-CryptoAlpha
+##CryptoAlpha
 
 Identifies high potential cryptocurrency investments
 
-Dependencies:
+####Dependencies:
 
 Python-Binance: 
 https://github.com/sammchardy/python-binance
@@ -13,7 +13,7 @@ http://flask.pocoo.org/
 MongoDB:
 https://api.mongodb.com/python/current/
 
-Authentication:
+####Authentication:
 
 1. Put a .authentication file in root project directory
 2. Add info to it in following way:
