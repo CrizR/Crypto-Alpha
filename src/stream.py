@@ -12,18 +12,18 @@ class BinanceStream(object):
         :return: Nothing
         """
         for ticker in self.client.get_all_tickers():  # WE SHOULD ONLY STORE LAST 7 days of data
-            if db.find({'symbol': ticker['symbol']}) is None:
+            if db.crypto_data.find({'symbol': ticker['symbol']}) is None:
                 data = {
                     "symbol": ticker["symbol"],
                     "prices": [ticker["price"]]
                 }
                 try:
-                    result = db.insert(data)
+                    result = db.crypto_data.insert(data)
                     print('One post: {0}'.format(result.inserted_id))
                 except errors.ConnectionFailure:
                     print("Couldn't Connect")
             else:
-                prev_data = db.find({'symbol', ticker['symbol']})
+                prev_data = db.crypto_data.find({'symbol', ticker['symbol']})
                 db.update_one(
                     {'symbol': ticker["symbol"]},
                     {'$set':{"prices": prev_data["prices"].append(ticker['price'])}},

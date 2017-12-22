@@ -1,6 +1,6 @@
 Crypto Alpha v1
 ================================
-Identifies high potential cryptocurrency investments
+Identifies High Potential Cryptocurrency Investments
 
 Dependencies:
 -------------

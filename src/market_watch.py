@@ -4,6 +4,7 @@ import pymongo
 from src.stream import BinanceStream
 import time
 from multiprocessing import Process
+from src.notify import ClientNotif
 
 
 class MarketWatch(object):
@@ -22,9 +23,11 @@ class MarketWatch(object):
     def __init__(self):
         self.client = Client(self.key, self.secret)
         self.mongo_client = pymongo.MongoClient('localhost', 27017)
-        self.db = self.mongo_client["ctr_storage"]
+        self.db = self.mongo_client.crypto_data
         self.stream = BinanceStream(self.client)
         self.stream.update_crypto_data(self.db)
+        # Put username and secret for TextMagic below
+        self.notify = ClientNotif('','', self.db)
 
     def run(self, period):
         start_time = time.time()
@@ -35,6 +38,7 @@ class MarketWatch(object):
             if market_opportunity is not None:
                 print("Market Opportunity Found")
                 # self.client.order_limit_buy()
+                self.notify.message_all("Market Opportunity Found: " + market_opportunity["symbol"])
                 print("Following Opp, Splitting Process")
                 p = Process(target=self.follow_opp, args=(market_opportunity, period))
                 p.start()
@@ -58,6 +62,7 @@ class MarketWatch(object):
             time.sleep(1)
             if not MarketUtilities.is_flaggable(asset, period):
                 print("No Longer an Opportunity, Drop Asset")
+                self.notify.message_all("No Longer an Opportunity, Drop Asset: " + asset["symbol"])
                 self.client.order_limit_sell()
 
 
