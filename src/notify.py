@@ -7,8 +7,8 @@ class ClientNotif(object):
     Abstraction used for handling the list of people who want text notifications
     """
 
-    def __init__(self, username, token, db):
-        self.db = db
+    def __init__(self, username, token, mongo_client):
+        self.db = mongo_client['client_list']
         self.client = TextmagicRestClient(username, token)
 
     def send_message(self, phone_number, msg):

@@ -11,6 +11,10 @@ class MarketUtilities(object):
         :return: The ratio
         """
         period_stats = MarketUtilities.get_period_data(data, period)["stats"]
+        print(period_stats)
+        diff = (period_stats["high"] - period_stats["low"])
+        if diff == 0:
+            return 0
         return (period_stats["high"] - period_stats["low"]) / period["avg"]
 
     @staticmethod
@@ -30,11 +34,12 @@ class MarketUtilities(object):
             "avg": 0
         }
         period_data = []
-        for price in data["prices"]:
-            if i >= len(data["prices"]) - period * 3600:
+        for price in data:
+            if i >= len(data) - period * 3600:
                 if price > period_stats["high"]:
                     period_stats["high"] = price
-                elif price < period_stats["low"]:
+
+                if price < period_stats["low"]:
                     period_stats["low"] = price
                 period_stats["sum"] += price
                 period_data.append(price)
@@ -77,8 +82,11 @@ class MarketUtilities(object):
         :param period: The period to watch
         :return: The boolean associated with the decision
         """
-        stability_ratio = MarketUtilities.get_stability_ratio(asset["prices"], period)
-        percent_increase = MarketUtilities.get_percent_increase(asset["prices"], period)
-        fast_moving_avg = MarketUtilities.get_exponential_moving_average(asset["prices"], 720)
-        slow_moving_avg = MarketUtilities.get_exponential_moving_average(asset["prices"], 1440)
-        return stability_ratio < .01 and percent_increase > 5 and fast_moving_avg > slow_moving_avg
+        if asset["prices"] is not None:
+            stability_ratio = MarketUtilities.get_stability_ratio(asset["prices"], period)
+            percent_increase = MarketUtilities.get_percent_increase(asset["prices"], period)
+            fast_moving_avg = MarketUtilities.get_exponential_moving_average(asset["prices"], 720)
+            slow_moving_avg = MarketUtilities.get_exponential_moving_average(asset["prices"], 1440)
+            return stability_ratio < .01 and percent_increase > 5 and fast_moving_avg > slow_moving_avg
+        else:
+            return False

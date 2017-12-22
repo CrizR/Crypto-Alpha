@@ -4,52 +4,64 @@ import pymongo
 from src.stream import BinanceStream
 import time
 from multiprocessing import Process
+from pymongo import errors
 from src.notify import ClientNotif
 
 
 class MarketWatch(object):
     # secret: <your secret here>
     # key: <your key here>
-    f = open("../.authentication", "r")
+    f = open("src/.authentication", "r")
     raw_file_data = f.readlines()
     file_info = {}
     for row in raw_file_data:
         split = row.split(":")
         file_info[split[0]] = split[1]
 
-    key = file_info['key']
-    secret = file_info['secret']
+    key = file_info['key'].replace("\n", "")
+    secret = file_info['secret'].replace("\n", "")
 
     def __init__(self):
         self.client = Client(self.key, self.secret)
-        self.mongo_client = pymongo.MongoClient('localhost', 27017)
+        try:
+            self.mongo_client = pymongo.MongoClient('localhost', 27017)
+            print("Connected successfully")
+        except pymongo.errors.ConnectionFailure:
+            print("Connect Failed, Quitting")
+            exit(1)
+        self.mongo_client.drop_database("crypto_data")
         self.db = self.mongo_client.crypto_data
         self.stream = BinanceStream(self.client)
-        self.stream.update_crypto_data(self.db)
         # Put username and secret for TextMagic below
-        self.notify = ClientNotif('','', self.db)
+        # self.notify = ClientNotif('','', self.mongo_client)
 
     def run(self, period):
+        """
+        Run the marketWatch
+        :param period:
+        :return:
+        """
         start_time = time.time()
+        self.stream.populate_database(self.db)
         while True:
-            self.stream.update_crypto_data(self.db)
             time.sleep(1)
-            market_opportunity = self.field_check(period)
-            if market_opportunity is not None:
-                print("Market Opportunity Found")
-                # self.client.order_limit_buy()
-                self.notify.message_all("Market Opportunity Found: " + market_opportunity["symbol"])
-                print("Following Opp, Splitting Process")
-                p = Process(target=self.follow_opp, args=(market_opportunity, period))
-                p.start()
+            for asset in self.client.get_all_tickers():  # WE SHOULD ONLY STORE LAST 7 days of data
+                self.stream.update_crypto_data(self.db, asset)
+                market_opportunity = self.field_check(period, asset)
+                if market_opportunity is not None:
+                    print("Market Opportunity Found")
+                    # self.client.order_limit_buy()
+                    # self.notify.message_all("Market Opportunity Found: " + market_opportunity["symbol"])
+                    print("Following Opp, Splitting Process")
+                    p = Process(target=self.follow_opp, args=(market_opportunity, period))
+                    p.start()
 
-    def field_check(self, period):
-        for ticker in self.client.get_all_tickers():
-            # Need to filter by volume
-            # If the amount we own is greater than .1% [determine the right percent] of the volume, ignore
-            asset = self.db.find({'symbol', ticker['symbol']})
-            if MarketUtilities.is_flaggable(asset, period):
-                return asset
+    def field_check(self, period, asset):
+        # Need to filter by volume
+        # If the amount we own is greater than .1% [determine the right percent] of the volume, ignore
+        asset = self.db.crypto_data.find_one({'symbol': asset['symbol']})
+        if MarketUtilities.is_flaggable(asset, period):
+            return asset
 
     def follow_opp(self, asset, period):
         """
@@ -62,8 +74,9 @@ class MarketWatch(object):
             time.sleep(1)
             if not MarketUtilities.is_flaggable(asset, period):
                 print("No Longer an Opportunity, Drop Asset")
-                self.notify.message_all("No Longer an Opportunity, Drop Asset: " + asset["symbol"])
-                self.client.order_limit_sell()
+                # self.notify.message_all("No Longer an Opportunity, Drop Asset: " + asset["symbol"])
+                # self.client.order_limit_sell()
+                exit(1)
 
 
 

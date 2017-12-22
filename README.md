@@ -25,3 +25,12 @@ Authentication:
 	secret: <your secret here>
 	
 	more_info: <more additional optional info here>
+
+
+Initializing MongoDB:
+--------------------
+On Max OS:
+    Install Mongo DB With Brew
+            $ brew install mongodb
+    Start MongoDB
+            $ brew services start mongodb
