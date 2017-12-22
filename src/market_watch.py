@@ -6,6 +6,7 @@ import time
 from multiprocessing import Process
 from pymongo import errors
 from src.notify import ClientNotif
+import datetime
 
 
 class MarketWatch(object):
@@ -20,8 +21,10 @@ class MarketWatch(object):
 
     key = file_info['key'].replace("\n", "")
     secret = file_info['secret'].replace("\n", "")
+    twilio_sid = file_info["twilio_sid"].replace("\n", "")
+    auth_token = file_info["auth_token"].replace("\n", "")
 
-    def __init__(self):
+    def __init__(self, reset=False):
         self.client = Client(self.key, self.secret)
         try:
             self.mongo_client = pymongo.MongoClient('localhost', 27017)
@@ -29,11 +32,12 @@ class MarketWatch(object):
         except pymongo.errors.ConnectionFailure:
             print("Connect Failed, Quitting")
             exit(1)
-        self.mongo_client.drop_database("crypto_data")
         self.db = self.mongo_client.crypto_data
         self.stream = BinanceStream(self.client)
-        # Put username and secret for TextMagic below
-        # self.notify = ClientNotif('','', self.mongo_client)
+        if reset:
+            self.mongo_client.drop_database("crypto_data")
+            self.stream.populate_database(self.db)
+        self.notify = ClientNotif(self.twilio_sid,self.auth_token, self.mongo_client)
 
     def run(self, period):
         """
@@ -42,8 +46,8 @@ class MarketWatch(object):
         :return:
         """
         start_time = time.time()
-        self.stream.populate_database(self.db)
         while True:
+            print(datetime.datetime.now())
             time.sleep(1)
             for asset in self.client.get_all_tickers():  # WE SHOULD ONLY STORE LAST 7 days of data
                 self.stream.update_crypto_data(self.db, asset)

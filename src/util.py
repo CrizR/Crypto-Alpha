@@ -1,3 +1,5 @@
+SECONDS_PER_HOUR = 3600
+
 class MarketUtilities(object):
     """
     Used to abstract out Market Utility functions for determining certain trends or executing certain actions dependent
@@ -13,9 +15,10 @@ class MarketUtilities(object):
         period_stats = MarketUtilities.get_period_data(data, period)["stats"]
         print(period_stats)
         diff = (period_stats["high"] - period_stats["low"])
+        print(diff)
         if diff == 0:
             return 0
-        return (period_stats["high"] - period_stats["low"]) / period["avg"]
+        return (period_stats["high"] - period_stats["low"]) / period_stats["avg"]
 
     @staticmethod
     def get_period_data(data, period):
@@ -35,7 +38,7 @@ class MarketUtilities(object):
         }
         period_data = []
         for price in data:
-            if i >= len(data) - period * 3600:
+            if i >= len(data) - period * SECONDS_PER_HOUR:
                 if price > period_stats["high"]:
                     period_stats["high"] = price
 
@@ -44,7 +47,11 @@ class MarketUtilities(object):
                 period_stats["sum"] += price
                 period_data.append(price)
             i += 1
-        period_stats["avg"] = period_stats["sum"] / period * 3600
+        if period * SECONDS_PER_HOUR > len(data):
+            size = len(data)
+        else:
+            size = period * SECONDS_PER_HOUR
+        period_stats["avg"] = period_stats["sum"] / size
         return {"stats": period_stats, "data": period_data}
 
     @staticmethod
@@ -70,7 +77,7 @@ class MarketUtilities(object):
         """
         multiplier = (2 / period + 1)
         period_data = MarketUtilities.get_period_data(data, period)
-        prev_period_data = MarketUtilities.get_period_data(data, period * 2)[:period * 3600]
+        prev_period_data = MarketUtilities.get_period_data(data, period * 2)[len(data) - 2 * len(period_data):len(period_data)]
         prev_sma = prev_period_data["stats"]["sum"] / period
         return (period_data["data"].pop() - prev_sma) * multiplier + prev_sma
 
@@ -82,6 +89,7 @@ class MarketUtilities(object):
         :param period: The period to watch
         :return: The boolean associated with the decision
         """
+        print(asset)
         if asset["prices"] is not None:
             stability_ratio = MarketUtilities.get_stability_ratio(asset["prices"], period)
             percent_increase = MarketUtilities.get_percent_increase(asset["prices"], period)

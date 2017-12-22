@@ -3,6 +3,7 @@ from pymongo import errors
 
 
 class BinanceStream(object):
+
     def __init__(self, client):
         self.client = client
 
@@ -27,17 +28,21 @@ class BinanceStream(object):
         else:
             prev_data = db.crypto_data.find_one({'symbol': symbol})
             prices = prev_data["prices"]
-            db.crypto_data.update_one(
-                {'symbol': symbol},
-                {'$set': {"prices": prices.append(price)}}, upsert=False)
+            prices.append(price)
+            try:
+                result = db.crypto_data.update_one(
+                    {'symbol': symbol},
+                    {'$set': {"prices": prices}}, upsert=False)
+                # print('One Update: {0}'.format(result))
+            except errors.ConnectionFailure:
+                print("Couldn't Insert")
 
-    def populate_database(self, db):
+    def populate_database(self, db, period):
         for i in range(0, 60):
             for asset in self.client.get_all_tickers():
                 symbol = asset["symbol"]
                 price = float(asset["price"])
                 data_entry = db.crypto_data.find_one({'symbol': symbol})
-                # print(data_entry)
                 if data_entry is None or data_entry["prices"] is None:
                     data = {
                         "symbol": symbol,
@@ -51,7 +56,12 @@ class BinanceStream(object):
                 else:
                     prev_data = db.crypto_data.find_one({'symbol': symbol})
                     prices = prev_data["prices"]
-                    result = db.crypto_data.update_one(
-                        {'symbol': symbol},
-                        {'$set': {"prices": prices.append(price)}}, upsert=False)
-                    # print('One Update: {0}'.format(result))
+                    prices.append(price)
+                    try:
+                        result = db.crypto_data.update_one(
+                            {'symbol': symbol},
+                            {'$set': {"prices": prices}}, upsert=False)
+                        # print('One Update: {0}'.format(result))
+                    except errors.ConnectionFailure:
+                        print("Couldn't Insert")
+
