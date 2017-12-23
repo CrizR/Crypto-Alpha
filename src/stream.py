@@ -38,7 +38,7 @@ class BinanceStream(object):
                 print("Couldn't Insert")
 
     def populate_database(self, db, period):
-        for i in range(0, 60):
+        for i in range(0, period * 3600):
             for asset in self.client.get_all_tickers():
                 symbol = asset["symbol"]
                 price = float(asset["price"])

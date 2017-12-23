@@ -13,9 +13,7 @@ class MarketUtilities(object):
         :return: The ratio
         """
         period_stats = MarketUtilities.get_period_data(data, period)["stats"]
-        print(period_stats)
         diff = (period_stats["high"] - period_stats["low"])
-        print(diff)
         if diff == 0:
             return 0
         return (period_stats["high"] - period_stats["low"]) / period_stats["avg"]
@@ -77,8 +75,8 @@ class MarketUtilities(object):
         """
         multiplier = (2 / period + 1)
         period_data = MarketUtilities.get_period_data(data, period)
-        prev_period_data = MarketUtilities.get_period_data(data, period * 2)[len(data) - 2 * len(period_data):len(period_data)]
-        prev_sma = prev_period_data["stats"]["sum"] / period
+        prev_period_data = MarketUtilities.get_period_data(data, period * 2)["data"][:int(len(period_data["data"]) / 2)]
+        prev_sma = sum(prev_period_data) / period
         return (period_data["data"].pop() - prev_sma) * multiplier + prev_sma
 
     @staticmethod
@@ -89,7 +87,6 @@ class MarketUtilities(object):
         :param period: The period to watch
         :return: The boolean associated with the decision
         """
-        print(asset)
         if asset["prices"] is not None:
             stability_ratio = MarketUtilities.get_stability_ratio(asset["prices"], period)
             percent_increase = MarketUtilities.get_percent_increase(asset["prices"], period)
