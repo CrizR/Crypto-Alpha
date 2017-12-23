@@ -33,4 +33,4 @@ class ClientNotif(object):
     def message_all(self, msg):
         clients = self.db.client_list.find()
         for client in clients:
-            self.client.messages.create(to=client["phone"], from_=HOST_NUMBER, body=client["name"] + ":" + msg)
+            self.client.messages.create(to=client["phone"], from_=HOST_NUMBER, body=client["name"] + " - \n" + msg)

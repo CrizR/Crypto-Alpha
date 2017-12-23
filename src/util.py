@@ -99,6 +99,6 @@ class MarketUtilities(object):
             #       + str(fast_moving_avg >= slow_moving_avg))
             # TODO: FIX EXPONENTIAL MOVING AVERAGE AND SEE IF THERE IS A BETTER WAY TO INCORPORATE PERCENT INCREASE
 
-            return stability_ratio < .02 and percent_increase > 0 or stability_ratio < .01 and percent_increase < 0
+            return stability_ratio < .02
         else:
             return False
