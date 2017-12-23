@@ -1,8 +1,8 @@
 1. Filter Cryptocurrencies by volume and market cap
-2. Make sure the parallelism is functional
-3. Fix mongodb implementation, not working correctly
+2. Make sure the parallelism is functional (CHECK)
+3. Fix mongodb implementation, not working correctly (CHECK)
 4. Create our own wrapper for the Binance API as the Binance wrapper we are currently using only has about 40% coverage.
-4. Host API on AWS
+4. Host API on AWS (Going to do heroku instead)
 5. Use OAuth to pass in key and secret to API instead of by URL (lol)
 6. Add some basic machine learning by looking for patterns between the cryptocurrency and previously predicted opportunities
 that succeeded

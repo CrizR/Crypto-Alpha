@@ -43,20 +43,19 @@ class MarketWatch(object):
         self.db = self.mongo_client.crypto_data
         self.stream = BinanceStream(self.client)
         self.stream.reset_watchlist(self.db)
-        self.mongo_client.drop_database("market_opportunities")
         if repopulate:
             print(ConsoleColors.WARNING + "Dropping Database and Repopulating" + ConsoleColors.ENDC)
             print(ConsoleColors.WARNING + "Will take approximately "
-                  + str((period * 60)) + "minutes" + ConsoleColors.ENDC)
+                  + str((period * 60 * 12)) + " minutes" + ConsoleColors.ENDC)
             time.sleep(3)
             self.mongo_client.drop_database("crypto_data")
-            self.stream.populate_database(self.db, self.period)
-        self.notify = ClientNotif(self.twilio_sid,self.auth_token, self.mongo_client)
+            self.stream.populate_database(self.db, period * 12)
+            self.mongo_client.drop_database("market_opportunities")
+        self.notify = ClientNotif(self.twilio_sid, self.auth_token, self.mongo_client)
 
     def run(self):
         """
-        Run the marketWatch
-        :param period:
+        Run the MarketWatch
         :return:
         """
         start_time = time.time()
@@ -68,7 +67,8 @@ class MarketWatch(object):
                 market_opportunity = self.field_check(asset)
                 if market_opportunity is not None:
                     print(ConsoleColors.OKBLUE + "Market Opportunity Found: " + market_opportunity["symbol"] + ConsoleColors.ENDC)
-                    self.db.market_opporunities.insert_one({'symbol': asset["symbol"], "marktime": datetime.datetime.now()})
+                    if self.db.market_opporunities.find_one({'symbol': asset["symbol"]}) is None:
+                        self.db.market_opporunities.insert_one({'symbol': asset["symbol"], "marktime": datetime.datetime.now()})
                     result = self.db.crypto_data.update_one(
                         {'symbol': asset["symbol"]},
                         {'$set': {"following": True}}, upsert=False)

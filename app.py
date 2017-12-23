@@ -22,7 +22,7 @@ def run_market_watch(period):
     msg = {
         "message": "Running",
     }
-    MarketWatch().run(period)
+    MarketWatch(False, period).run()
     return make_response(jsonify(msg), 200)
 
 

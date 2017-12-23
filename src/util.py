@@ -94,14 +94,11 @@ class MarketUtilities(object):
             fast_moving_avg = MarketUtilities.get_exponential_moving_average(asset["prices"], 720)
             slow_moving_avg = MarketUtilities.get_exponential_moving_average(asset["prices"], 1440)
             # print(asset["symbol"] + ": " + "\tStable: "
-            #       + str(stability_ratio < .03) + "\t%^: "
+            #       + str(stability_ratio) + "\t%^: "
             #       + str(round(percent_increase, 3)) + "\tMACD: "
             #       + str(fast_moving_avg >= slow_moving_avg))
-
-            # print(fast_moving_avg, slow_moving_avg)
             # TODO: FIX EXPONENTIAL MOVING AVERAGE AND SEE IF THERE IS A BETTER WAY TO INCORPORATE PERCENT INCREASE
 
-            return stability_ratio < .03 and percent_increase < -1
-            # Bull market needs more data to work
+            return stability_ratio < .02 and percent_increase > 0 or stability_ratio < .01 and percent_increase < 0
         else:
             return False
