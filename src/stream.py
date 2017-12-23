@@ -18,7 +18,8 @@ class BinanceStream(object):
         if data_entry is None or data_entry["prices"] is None:
             data = {
                 "symbol": symbol,
-                "prices": [price]
+                "prices": [price],
+                "following":False
             }
             try:
                 result = db.crypto_data.insert_one(data)
@@ -46,7 +47,8 @@ class BinanceStream(object):
                 if data_entry is None or data_entry["prices"] is None:
                     data = {
                         "symbol": symbol,
-                        "prices": [price]
+                        "prices": [price],
+                        "following": False
                     }
                     try:
                         result = db.crypto_data.insert_one(data)

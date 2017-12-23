@@ -90,15 +90,17 @@ class MarketUtilities(object):
         """
         if asset["prices"] is not None:
             stability_ratio = MarketUtilities.get_stability_ratio(asset["prices"], period)
-            percent_increase = MarketUtilities.get_percent_increase(asset["prices"], period)
+            percent_increase = MarketUtilities.get_percent_increase(asset["prices"], period / 60)
             fast_moving_avg = MarketUtilities.get_exponential_moving_average(asset["prices"], 720)
             slow_moving_avg = MarketUtilities.get_exponential_moving_average(asset["prices"], 1440)
-            print(asset["symbol"] + ": " + "\tSTB Ratio: "
-                  + str(round(stability_ratio, 3)) + "\t%^: "
-                  + str(round(percent_increase, 3)) + "\tSPEMA: "
-                  + str(round(fast_moving_avg, 3)) + "\tLPEMA: "
-                  + str(round(slow_moving_avg, 3)))
+            print(asset["symbol"] + ": " + "\tStable: "
+                  + str(stability_ratio < .03) + "\t%^: "
+                  + str(round(percent_increase, 3)) + "\tMACD: "
+                  + str(fast_moving_avg >= slow_moving_avg))
 
-            return stability_ratio < .01 and percent_increase > 5 and fast_moving_avg > slow_moving_avg
+            # print(fast_moving_avg, slow_moving_avg)
+            # TODO: FIX EXPONENTIAL MOVING AVERAGE AND SEE IF THERE IS A BETTER WAY TO INCORPORATE PERCENT INCREASE
+
+            return stability_ratio < .02
         else:
             return False

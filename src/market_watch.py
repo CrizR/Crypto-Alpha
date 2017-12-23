@@ -7,6 +7,7 @@ from multiprocessing import Process
 from pymongo import errors
 from src.notify import ClientNotif
 import datetime
+from src.bcolors import ConsoleColors
 
 
 class MarketWatch(object):
@@ -35,14 +36,17 @@ class MarketWatch(object):
         self.period = period
         try:
             self.mongo_client = pymongo.MongoClient('localhost', 27017)
-            print("Connected successfully")
+            print(ConsoleColors.OKBLUE + "Connected successfully" + ConsoleColors.ENDC)
         except pymongo.errors.ConnectionFailure:
-            print("Connect Failed, Quitting")
+            print(ConsoleColors.WARNING + "Connect Failed, Quitting" + ConsoleColors.ENDC)
             exit(1)
         self.db = self.mongo_client.crypto_data
         self.stream = BinanceStream(self.client)
         if repopulate:
+            print(ConsoleColors.WARNING + "Dropping Database and Repopulating" + ConsoleColors.ENDC)
+            time.sleep(3)
             self.mongo_client.drop_database("crypto_data")
+            self.mongo_client.drop_database("market_opportunities")
             self.stream.populate_database(self.db, self.period)
         self.notify = ClientNotif(self.twilio_sid,self.auth_token, self.mongo_client)
 
@@ -60,11 +64,10 @@ class MarketWatch(object):
                 self.stream.update_crypto_data(self.db, asset)
                 market_opportunity = self.field_check(asset)
                 if market_opportunity is not None:
-                    print("Market Opportunity Found")
+                    print(ConsoleColors.OKBLUE + "Market Opportunity Found: Locked and Loaded" + ConsoleColors.ENDC)
                     self.db.market_opporunities.insert_one({'symbol': asset["symbol"], "marktime": datetime.datetime.now()})
                     # self.client.order_limit_buy()
-                    # self.notify.message_all("Market Opportunity Found: " + market_opportunity["symbol"])
-                    print("Following Opp, Splitting Process")
+                    self.notify.message_all("Market Opportunity Found: " + market_opportunity["symbol"])
                     p = Process(target=self.follow_opp, args=(market_opportunity, self.period))
                     p.start()
 
@@ -77,7 +80,7 @@ class MarketWatch(object):
         # Need to filter by volume
         # If the amount we own is greater than .1% [determine the right percent] of the volume, ignore
         asset = self.db.crypto_data.find_one({'symbol': asset['symbol']})
-        if MarketUtilities.is_potential_opp(asset, self.period):
+        if asset["following"] is False and MarketUtilities.is_potential_opp(asset, self.period):
             return asset
 
     def follow_opp(self, asset, period):
@@ -90,7 +93,7 @@ class MarketWatch(object):
         while True:
             time.sleep(1)
             if not MarketUtilities.is_potential_opp(asset, period):
-                print("No Longer an Opportunity, Drop Asset")
+                print(ConsoleColors.WARNING + "No Longer a Loaded Opportunity" + ConsoleColors.ENDC)
                 # self.notify.message_all("No Longer an Opportunity, Drop Asset: " + asset["symbol"])
                 # self.client.order_limit_sell()
                 exit(1)
@@ -98,8 +101,11 @@ class MarketWatch(object):
     def retrieve_previous_opps(self):
         """
         Function to retrieve all of the previous opportunities from the database
-        TODO:Implement
-        :return:
+        :return: The market opportunities
         """
+        opps = []
+        for item in self.db.market_opporunities.find():
+            opps.append(item)
+        return opps
 
 
