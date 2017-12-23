@@ -61,6 +61,7 @@ class MarketWatch(object):
                 market_opportunity = self.field_check(self.period)
                 if market_opportunity is not None:
                     print("Market Opportunity Found")
+                    self.db.market_opporunities.insert_one({'symbol': asset["symbol"], "marktime": datetime.datetime.now()})
                     # self.client.order_limit_buy()
                     # self.notify.message_all("Market Opportunity Found: " + market_opportunity["symbol"])
                     print("Following Opp, Splitting Process")
