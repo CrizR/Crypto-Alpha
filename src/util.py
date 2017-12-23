@@ -1,5 +1,6 @@
 SECONDS_PER_HOUR = 3600
 
+
 class MarketUtilities(object):
     """
     Used to abstract out Market Utility functions for determining certain trends or executing certain actions dependent
@@ -80,7 +81,7 @@ class MarketUtilities(object):
         return (period_data["data"].pop() - prev_sma) * multiplier + prev_sma
 
     @staticmethod
-    def is_flaggable(asset, period):
+    def is_potential_opp(asset, period):
         """
         Determines whether or not the asset is potentially valuable
         :param asset: The asset to look at
@@ -92,6 +93,12 @@ class MarketUtilities(object):
             percent_increase = MarketUtilities.get_percent_increase(asset["prices"], period)
             fast_moving_avg = MarketUtilities.get_exponential_moving_average(asset["prices"], 720)
             slow_moving_avg = MarketUtilities.get_exponential_moving_average(asset["prices"], 1440)
+            print(asset["symbol"] + ": " + "\tSTB Ratio: "
+                  + str(round(stability_ratio, 3)) + "\t%^: "
+                  + str(round(percent_increase, 3)) + "\tSPEMA: "
+                  + str(round(fast_moving_avg, 3)) + "\tLPEMA: "
+                  + str(round(slow_moving_avg, 3)))
+
             return stability_ratio < .01 and percent_increase > 5 and fast_moving_avg > slow_moving_avg
         else:
             return False
