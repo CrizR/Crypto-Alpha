@@ -42,11 +42,14 @@ class MarketWatch(object):
             exit(1)
         self.db = self.mongo_client.crypto_data
         self.stream = BinanceStream(self.client)
+        self.stream.reset_watchlist(self.db)
+        self.mongo_client.drop_database("market_opportunities")
         if repopulate:
             print(ConsoleColors.WARNING + "Dropping Database and Repopulating" + ConsoleColors.ENDC)
+            print(ConsoleColors.WARNING + "Will take approximately "
+                  + str((period * 60)) + "minutes" + ConsoleColors.ENDC)
             time.sleep(3)
             self.mongo_client.drop_database("crypto_data")
-            self.mongo_client.drop_database("market_opportunities")
             self.stream.populate_database(self.db, self.period)
         self.notify = ClientNotif(self.twilio_sid,self.auth_token, self.mongo_client)
 
@@ -59,13 +62,16 @@ class MarketWatch(object):
         start_time = time.time()
         while True:
             print(datetime.datetime.now())
-            time.sleep(1)
+            time.sleep(3)
             for asset in self.client.get_all_tickers():  # TODO:WE SHOULD ONLY STORE LAST 7 days of data
                 self.stream.update_crypto_data(self.db, asset)
                 market_opportunity = self.field_check(asset)
                 if market_opportunity is not None:
-                    print(ConsoleColors.OKBLUE + "Market Opportunity Found: Locked and Loaded" + ConsoleColors.ENDC)
+                    print(ConsoleColors.OKBLUE + "Market Opportunity Found: " + market_opportunity["symbol"] + ConsoleColors.ENDC)
                     self.db.market_opporunities.insert_one({'symbol': asset["symbol"], "marktime": datetime.datetime.now()})
+                    result = self.db.crypto_data.update_one(
+                        {'symbol': asset["symbol"]},
+                        {'$set': {"following": True}}, upsert=False)
                     # self.client.order_limit_buy()
                     self.notify.message_all("Market Opportunity Found: " + market_opportunity["symbol"])
                     p = Process(target=self.follow_opp, args=(market_opportunity, self.period))
@@ -91,7 +97,7 @@ class MarketWatch(object):
         :return: Nothing
         """
         while True:
-            time.sleep(1)
+            time.sleep(3)
             if not MarketUtilities.is_potential_opp(asset, period):
                 print(ConsoleColors.WARNING + "No Longer a Loaded Opportunity" + ConsoleColors.ENDC)
                 result = self.db.crypto_data.update_one(

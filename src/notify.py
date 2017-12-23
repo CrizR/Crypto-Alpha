@@ -18,6 +18,6 @@ class ClientNotif(object):
         self.db.client_list.insert_one({'name': client_name, 'phone': client_number})
 
     def message_all(self, msg):
-        clients = self.db.client_list.find({})
+        clients = self.db.client_list.find()
         for client in clients:
             self.client.messages.create(client["phone"], msg)

@@ -90,17 +90,18 @@ class MarketUtilities(object):
         """
         if asset["prices"] is not None:
             stability_ratio = MarketUtilities.get_stability_ratio(asset["prices"], period)
-            percent_increase = MarketUtilities.get_percent_increase(asset["prices"], period * 10)
+            percent_increase = MarketUtilities.get_percent_increase(asset["prices"], 24) # Over Last 24 hours
             fast_moving_avg = MarketUtilities.get_exponential_moving_average(asset["prices"], 720)
             slow_moving_avg = MarketUtilities.get_exponential_moving_average(asset["prices"], 1440)
-            print(asset["symbol"] + ": " + "\tStable: "
-                  + str(stability_ratio < .03) + "\t%^: "
-                  + str(round(percent_increase, 3)) + "\tMACD: "
-                  + str(fast_moving_avg >= slow_moving_avg))
+            # print(asset["symbol"] + ": " + "\tStable: "
+            #       + str(stability_ratio < .03) + "\t%^: "
+            #       + str(round(percent_increase, 3)) + "\tMACD: "
+            #       + str(fast_moving_avg >= slow_moving_avg))
 
             # print(fast_moving_avg, slow_moving_avg)
             # TODO: FIX EXPONENTIAL MOVING AVERAGE AND SEE IF THERE IS A BETTER WAY TO INCORPORATE PERCENT INCREASE
 
-            return stability_ratio < .02 and percent_increase > 5   # Bull market
+            return stability_ratio < .03 and percent_increase < -1
+            # Bull market needs more data to work
         else:
             return False

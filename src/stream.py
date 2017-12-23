@@ -38,6 +38,20 @@ class BinanceStream(object):
             except errors.ConnectionFailure:
                 print("Couldn't Insert")
 
+    def reset_watchlist(self, db):
+        """
+        Resets the boolean values of our watchlist to False
+        :param db: The database to reset
+        :return: Nothing
+        """
+        for asset in db.crypto_data.find():
+            try:
+                result = db.crypto_data.update_one(
+                    {'symbol': asset["symbol"]},
+                    {'$set': {"following": False}}, upsert=False)
+            except errors.ConnectionFailure:
+                print("Couldn't Update")
+
     def populate_database(self, db, period):
         for i in range(0, int(period * 3600)):
             for asset in self.client.get_all_tickers():
@@ -65,5 +79,5 @@ class BinanceStream(object):
                             {'$set': {"prices": prices}}, upsert=False)
                         # print('One Update: {0}'.format(result))
                     except errors.ConnectionFailure:
-                        print("Couldn't Insert")
+                        print("Couldn't Update")
 
