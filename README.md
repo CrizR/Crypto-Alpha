@@ -23,10 +23,10 @@ Authentication:
 	    key: <your key here>
 	
 	    secret: <your secret here>
-	
+	    
 	    twilio_sid:ACcc841ff7e8536aa6b59305da39850fe6
-
-            auth_token:c13a9010670a559a3a08f81dc9362f79
+	    
+	    auth_token:c13a9010670a559a3a08f81dc9362f79
 
 
 Initializing MongoDB:
