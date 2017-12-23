@@ -94,7 +94,10 @@ class MarketWatch(object):
             time.sleep(1)
             if not MarketUtilities.is_potential_opp(asset, period):
                 print(ConsoleColors.WARNING + "No Longer a Loaded Opportunity" + ConsoleColors.ENDC)
-                # self.notify.message_all("No Longer an Opportunity, Drop Asset: " + asset["symbol"])
+                result = self.db.crypto_data.update_one(
+                    {'symbol': asset["symbol"]},
+                    {'$set': {"following": False}}, upsert=False)
+                self.notify.message_all("No Longer a Loaded Opportunity: " + asset["symbol"])
                 # self.client.order_limit_sell()
                 exit(1)
 
