@@ -4,8 +4,5 @@
 4. Create our own wrapper for the Binance API as the Binance wrapper we are currently using only has about 40% coverage.
 4. Host API on AWS
 5. Use OAuth to pass in key and secret to API instead of by URL (lol)
-
-
-
-ISSUES:
-1. Database prices aren't populated for some reason.
+6. Add some basic machine learning by looking for patterns between the cryptocurrency and previously predicted opportunities
+that succeeded
