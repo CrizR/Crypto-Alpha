@@ -14,6 +14,9 @@ http://flask.pocoo.org/
 MongoDB:
 https://api.mongodb.com/python/current/
 
+Twilio:
+https://www.twilio.com/docs/
+
 Authentication:
 ---------------
 
