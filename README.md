@@ -43,7 +43,7 @@ On Max OS:
     
    Populating Database:
    	
-   In main.py, make sure that the first paramater is equal to true if you want to populate your database. After 
+   In main.py, make sure that the first paramater is set to true if you want to populate your database. After 
    it is populated switch it to false. It will take around 12 times the period you specify in hours to populate fully.
 	
 	mw = MarketWatch(repopulate=True, period=.5)
