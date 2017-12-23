@@ -58,7 +58,7 @@ class MarketWatch(object):
             time.sleep(1)
             for asset in self.client.get_all_tickers():  # TODO:WE SHOULD ONLY STORE LAST 7 days of data
                 self.stream.update_crypto_data(self.db, asset)
-                market_opportunity = self.field_check(self.period)
+                market_opportunity = self.field_check(asset)
                 if market_opportunity is not None:
                     print("Market Opportunity Found")
                     self.db.market_opporunities.insert_one({'symbol': asset["symbol"], "marktime": datetime.datetime.now()})
