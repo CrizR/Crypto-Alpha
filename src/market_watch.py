@@ -95,9 +95,11 @@ class MarketWatch(object):
                 # self.client.order_limit_sell()
                 exit(1)
 
-
-
-
-
+    def retrieve_previous_opps(self):
+        """
+        Function to retrieve all of the previous opportunities from the database
+        TODO:Implement
+        :return:
+        """
 
 
